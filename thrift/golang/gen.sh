@@ -3,4 +3,5 @@
 #go get golang.org/x/net/context
 #go get google.golang.org/grpc
 
-thrift-0.9.2.exe -r --gen go  -out src thrift/helloworld.thrift
+#thrift-0.9.2.exe -r --gen go  -out src thrift/helloworld.thrift
+thrift -r --gen go  -out src thrift/helloworld.thrift

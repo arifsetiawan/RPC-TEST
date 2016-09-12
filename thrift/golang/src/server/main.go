@@ -1,28 +1,26 @@
 package main
 
 import (
-    "fmt"
+	"fmt"
 	"os"
-	
-    "git.apache.org/thrift.git/lib/go/thrift"
-    
-	"greeter"
+
+	"git.apache.org/thrift.git/lib/go/thrift"
+
+	"./../greeter"
 )
 
 const (
 	NetworkAddr = "localhost:9090"
 )
 
-
 type GreeterHandler struct {
-	
 }
 
 func NewGreeterHandler() *GreeterHandler {
 	return &GreeterHandler{}
 }
 
-func (p *GreeterHandler) SayHello(name string)(r string, err error) { 
+func (p *GreeterHandler) SayHello(name string) (r string, err error) {
 	return "Hello " + name, nil
 }
 
@@ -35,9 +33,9 @@ func main() {
 		os.Exit(1)
 	}
 
-    handler := NewGreeterHandler()
-    processor := greeter.NewGreeterProcessor(handler)
-    server := thrift.NewTSimpleServer4(processor, transport, transportFactory, protocolFactory)
+	handler := NewGreeterHandler()
+	processor := greeter.NewGreeterProcessor(handler)
+	server := thrift.NewTSimpleServer4(processor, transport, transportFactory, protocolFactory)
 	fmt.Println("Starting the simple server... on ", NetworkAddr)
 	server.Serve()
 }

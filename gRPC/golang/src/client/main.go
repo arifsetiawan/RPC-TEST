@@ -7,9 +7,9 @@ import (
 	"strconv"
 	"sync"
 	"time"
-	
-	pb "greeter"
-	
+
+	pb "./../greeter"
+
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
@@ -29,37 +29,34 @@ func invoke(c pb.GreeterClient, name string) {
 
 func syncTest(c pb.GreeterClient, name string) {
 	i := 10000
-	t := time.Now().UnixNano()	
-	for ; i>0; i-- {
+	t := time.Now().UnixNano()
+	for ; i > 0; i-- {
 		invoke(c, name)
 	}
-	fmt.Println("took", (time.Now().UnixNano() - t) / 1000000, "ms")
+	fmt.Println("took", (time.Now().UnixNano()-t)/1000000, "ms")
 }
-
 
 func asyncTest(c [20]pb.GreeterClient, name string) {
 	var wg sync.WaitGroup
-    wg.Add(10000)
-	
-	i := 10000
-	t := time.Now().UnixNano()	
-	for ; i>0; i-- {
-		go func() {invoke(c[i % 20], name);wg.Done()}()
-	}	
-	wg.Wait()
-	fmt.Println("took", (time.Now().UnixNano() - t) / 1000000, "ms")
-}
+	wg.Add(10000)
 
+	i := 10000
+	t := time.Now().UnixNano()
+	for ; i > 0; i-- {
+		go func() { invoke(c[i%20], name); wg.Done() }()
+	}
+	wg.Wait()
+	fmt.Println("took", (time.Now().UnixNano()-t)/1000000, "ms")
+}
 
 func main() {
 	// Set up a connection to the server.
-	conn, err := grpc.Dial(address)
+	conn, err := grpc.Dial(address, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
 	defer conn.Close()
 	var c [20]pb.GreeterClient
-	 
 
 	// Contact the server and print out its response.
 	name := defaultName
@@ -67,14 +64,14 @@ func main() {
 	if len(os.Args) > 1 {
 		sync, err = strconv.ParseBool(os.Args[1])
 	}
-	
+
 	//warm up
 	i := 0
 	for ; i < 20; i++ {
 		c[i] = pb.NewGreeterClient(conn)
 		invoke(c[i], name)
 	}
-	
+
 	if sync {
 		syncTest(c[0], name)
 	} else {

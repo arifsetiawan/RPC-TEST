@@ -1,3 +1,7 @@
+### Modification
+
+Modified to work with Thrift 0.9.3 and the latest gRPC 1.0 (Golang)
+
 ### Simple Thrift and gRPC performance test
 
 use a simple "helloworld" prototype to test thrift and gRPC.

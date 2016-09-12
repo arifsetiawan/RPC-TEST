@@ -1,0 +1,2 @@
+sync: took 270 ms
+async: took 225 ms

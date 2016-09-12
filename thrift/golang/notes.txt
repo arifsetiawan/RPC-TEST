@@ -1,0 +1,5 @@
+Verify thrift source :
+
+    % gpg --import KEYS
+    % gpg --verify downloaded_file.asc downloaded_file
+

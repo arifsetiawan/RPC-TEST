@@ -1,0 +1,5 @@
+1. Example command for running client > main.go (sync = False: run 10000 rpc call on 20 clients asynchronously):
+
+    go run main.go  False
+
+2. 
