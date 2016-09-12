@@ -2,4 +2,34 @@
 
     go run main.go  False
 
-2. 
+2. gRPC sometimes yield error * :
+
+    CLIIENT :
+
+    panic: runtime error: index out of range
+
+    goroutine 3266 [running]:
+    panic(0x882e80, 0xc82000e0f0)
+        /usr/local/go/src/runtime/panic.go:481 +0x3e6
+    main.asyncTest.func1(0xc8200d6a00, 0xc8201902c0, 0x923208, 0x5, 0xc8201902b0)
+        /home/hanif/PROJECTS/Github/RPC-TEST/gRPC/golang/src/client/main.go:46 +0x9d
+    created by main.asyncTest
+        /home/hanif/PROJECTS/Github/RPC-TEST/gRPC/golang/src/client/main.go:46 +0x14f
+    exit status 2
+    panic: runtime error: index out of range
+
+    goroutine 2298 [running]:
+    panic(0x882e80, 0xc82000e0f0)
+        /usr/local/go/src/runtime/panic.go:481 +0x3e6
+    main.asyncTest.func1(0xc820210000, 0xc82012ef20, 0x923208, 0x5, 0xc82012ef10)
+        /home/hanif/PROJECTS/Github/RPC-TEST/gRPC/golang/src/client/main.go:46 +0x9d
+    created by main.asyncTest
+        /home/hanif/PROJECTS/Github/RPC-TEST/gRPC/golang/src/client/main.go:46 +0x14f
+    exit status 2
+
+    SERVER :
+
+    2016/09/12 14:09:38 transport: http2Server.HandleStreams failed to read frame: read tcp 127.0.0.1:50051->127.0.0.1:57828: read: connection reset by peer
+    2016/09/12 14:09:42 transport: http2Server.HandleStreams failed to read frame: read tcp 127.0.0.1:50051->127.0.0.1:57832: read: connection reset by peer
+
+*) Sepertinya sudah ketemu penyebabnya: kemungkinan karena index/counter tidak di-passing sebagai parameter waktu create goroutine.

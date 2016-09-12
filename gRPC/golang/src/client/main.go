@@ -33,7 +33,8 @@ func syncTest(c pb.GreeterClient, name string) {
 	for ; i > 0; i-- {
 		invoke(c, name)
 	}
-	fmt.Println("took", (time.Now().UnixNano()-t)/1000000, "ms")
+	//fmt.Println("took", (time.Now().UnixNano()-t)/1000000, "ms")
+	fmt.Println((time.Now().UnixNano() - t) / 1000000)
 }
 
 func asyncTest(c [20]pb.GreeterClient, name string) {
@@ -43,10 +44,15 @@ func asyncTest(c [20]pb.GreeterClient, name string) {
 	i := 10000
 	t := time.Now().UnixNano()
 	for ; i > 0; i-- {
-		go func() { invoke(c[i%20], name); wg.Done() }()
+		go func(counter int) {
+			//fmt.Printf("counter %d, client index %d\n", counter, counter%20)
+			invoke(c[counter%20], name)
+			wg.Done()
+		}(i)
 	}
 	wg.Wait()
-	fmt.Println("took", (time.Now().UnixNano()-t)/1000000, "ms")
+	//fmt.Println("took", (time.Now().UnixNano()-t)/1000000, "ms")
+	fmt.Println((time.Now().UnixNano() - t) / 1000000)
 }
 
 func main() {
