@@ -10,9 +10,9 @@ All servers and clients are implemented by Golang
 Test result as follows (milliseconds/10000 calls). The first value is using one client to test servers and the second value is using 20 clients to test concurrently.
 
 |  | Golang | 
-| ----- | 
-| **Thrift** | 261/169  | 
-| **gRPC**   | 1456/813 | 
-| **Cap'nP**   | 1828/1143 | 
+| ----- | ----- | 
+| **Thrift**   | 261/169  | 
+| **gRPC**     | 1456/813 | 
+| **Cap'n Proto**   | 1828/1143 | 
 
 
