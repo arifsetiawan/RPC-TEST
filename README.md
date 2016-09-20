@@ -40,6 +40,8 @@ Run client
 ./clientrunner.sh
 ```
 
+Output will be available in `temp.txt` file.
+
 ### Modification
 
 Change Thrift definition to use struct. In previous test, thrift definition was
