@@ -87,11 +87,11 @@ struct HelloReply {
 service Greeter {
     HelloReply sayHello(1:HelloRequest request);
 }
-``
+```
 
 ### Conclusion
 
-gRPC still have worst speed then thrift even I tried to level the field. Although the ratio is not as bad as previous test. About 3 times slower (not 5 times slower as in previous test)
+gRPC still have worst speed then thrift even I tried to level the field. Although the ratio is not as bad as previous test. About 3 times slower (not 5 times slower as in previous test for one client test)
 
 gRPC CPU usage also higher then thrift (I just glance at %CPU on my Mac, no recorded data)
 
