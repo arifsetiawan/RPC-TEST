@@ -18,16 +18,24 @@ const (
 )
 
 func syncTest(client *greeter.GreeterClient, name string) {
+
+	request := greeter.NewHelloRequest()
+	request.Message = name
+
 	i := 10000
 	t := time.Now().UnixNano()
 	for ; i > 0; i-- {
-		client.SayHello(name)
+		client.SayHello(request)
 	}
 	//fmt.Println("took", (time.Now().UnixNano()-t)/1000000, "ms")
 	fmt.Println((time.Now().UnixNano() - t) / 1000000)
 }
 
 func asyncTest(client [20]*greeter.GreeterClient, name string) {
+
+	request := greeter.NewHelloRequest()
+	request.Message = name
+
 	var locks [20]sync.Mutex
 	var wg sync.WaitGroup
 	wg.Add(10000)
@@ -37,7 +45,7 @@ func asyncTest(client [20]*greeter.GreeterClient, name string) {
 	for ; i > 0; i-- {
 		go func(index int) {
 			locks[index%20].Lock()
-			client[index%20].SayHello(name)
+			client[index%20].SayHello(request)
 			wg.Done()
 			locks[index%20].Unlock()
 		}(i)
@@ -52,6 +60,9 @@ func main() {
 	protocolFactory := thrift.NewTBinaryProtocolFactoryDefault()
 
 	var client [20]*greeter.GreeterClient
+
+	request := greeter.NewHelloRequest()
+	request.Message = defaultName
 
 	//warm up
 	for i := 0; i < 20; i++ {
@@ -69,7 +80,7 @@ func main() {
 		}
 
 		client[i] = greeter.NewGreeterClientFactory(useTransport, protocolFactory)
-		client[i].SayHello(defaultName)
+		client[i].SayHello(request)
 	}
 
 	sync := true

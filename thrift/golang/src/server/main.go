@@ -20,8 +20,10 @@ func NewGreeterHandler() *GreeterHandler {
 	return &GreeterHandler{}
 }
 
-func (p *GreeterHandler) SayHello(name string) (r string, err error) {
-	return "Hello " + name, nil
+func (p *GreeterHandler) SayHello(request *greeter.HelloRequest) (r *greeter.HelloReply, err error) {
+	reply := greeter.NewHelloReply()
+	reply.Message = "Hello " + request.Message
+	return reply, nil
 }
 
 func main() {

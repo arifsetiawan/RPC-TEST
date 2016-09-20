@@ -16,8 +16,8 @@ var _ = bytes.Equal
 
 type Greeter interface {
 	// Parameters:
-	//  - Name
-	SayHello(name string) (r string, err error)
+	//  - Request
+	SayHello(request *HelloRequest) (r *HelloReply, err error)
 }
 
 type GreeterClient struct {
@@ -47,15 +47,15 @@ func NewGreeterClientProtocol(t thrift.TTransport, iprot thrift.TProtocol, oprot
 }
 
 // Parameters:
-//  - Name
-func (p *GreeterClient) SayHello(name string) (r string, err error) {
-	if err = p.sendSayHello(name); err != nil {
+//  - Request
+func (p *GreeterClient) SayHello(request *HelloRequest) (r *HelloReply, err error) {
+	if err = p.sendSayHello(request); err != nil {
 		return
 	}
 	return p.recvSayHello()
 }
 
-func (p *GreeterClient) sendSayHello(name string) (err error) {
+func (p *GreeterClient) sendSayHello(request *HelloRequest) (err error) {
 	oprot := p.OutputProtocol
 	if oprot == nil {
 		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -66,7 +66,7 @@ func (p *GreeterClient) sendSayHello(name string) (err error) {
 		return
 	}
 	args := GreeterSayHelloArgs{
-		Name: name,
+		Request: request,
 	}
 	if err = args.Write(oprot); err != nil {
 		return
@@ -77,7 +77,7 @@ func (p *GreeterClient) sendSayHello(name string) (err error) {
 	return oprot.Flush()
 }
 
-func (p *GreeterClient) recvSayHello() (value string, err error) {
+func (p *GreeterClient) recvSayHello() (value *HelloReply, err error) {
 	iprot := p.InputProtocol
 	if iprot == nil {
 		iprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -185,9 +185,9 @@ func (p *greeterProcessorSayHello) Process(seqId int32, iprot, oprot thrift.TPro
 
 	iprot.ReadMessageEnd()
 	result := GreeterSayHelloResult{}
-	var retval string
+	var retval *HelloReply
 	var err2 error
-	if retval, err2 = p.handler.SayHello(args.Name); err2 != nil {
+	if retval, err2 = p.handler.SayHello(args.Request); err2 != nil {
 		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing sayHello: "+err2.Error())
 		oprot.WriteMessageBegin("sayHello", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
@@ -195,7 +195,7 @@ func (p *greeterProcessorSayHello) Process(seqId int32, iprot, oprot thrift.TPro
 		oprot.Flush()
 		return true, err2
 	} else {
-		result.Success = &retval
+		result.Success = retval
 	}
 	if err2 = oprot.WriteMessageBegin("sayHello", thrift.REPLY, seqId); err2 != nil {
 		err = err2
@@ -218,18 +218,27 @@ func (p *greeterProcessorSayHello) Process(seqId int32, iprot, oprot thrift.TPro
 // HELPER FUNCTIONS AND STRUCTURES
 
 // Attributes:
-//  - Name
+//  - Request
 type GreeterSayHelloArgs struct {
-	Name string `thrift:"name,1" json:"name"`
+	Request *HelloRequest `thrift:"request,1" json:"request"`
 }
 
 func NewGreeterSayHelloArgs() *GreeterSayHelloArgs {
 	return &GreeterSayHelloArgs{}
 }
 
-func (p *GreeterSayHelloArgs) GetName() string {
-	return p.Name
+var GreeterSayHelloArgs_Request_DEFAULT *HelloRequest
+
+func (p *GreeterSayHelloArgs) GetRequest() *HelloRequest {
+	if !p.IsSetRequest() {
+		return GreeterSayHelloArgs_Request_DEFAULT
+	}
+	return p.Request
 }
+func (p *GreeterSayHelloArgs) IsSetRequest() bool {
+	return p.Request != nil
+}
+
 func (p *GreeterSayHelloArgs) Read(iprot thrift.TProtocol) error {
 	if _, err := iprot.ReadStructBegin(); err != nil {
 		return thrift.PrependError(fmt.Sprintf("%T read error: ", p), err)
@@ -264,10 +273,9 @@ func (p *GreeterSayHelloArgs) Read(iprot thrift.TProtocol) error {
 }
 
 func (p *GreeterSayHelloArgs) readField1(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadString(); err != nil {
-		return thrift.PrependError("error reading field 1: ", err)
-	} else {
-		p.Name = v
+	p.Request = &HelloRequest{}
+	if err := p.Request.Read(iprot); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T error reading struct: ", p.Request), err)
 	}
 	return nil
 }
@@ -289,14 +297,14 @@ func (p *GreeterSayHelloArgs) Write(oprot thrift.TProtocol) error {
 }
 
 func (p *GreeterSayHelloArgs) writeField1(oprot thrift.TProtocol) (err error) {
-	if err := oprot.WriteFieldBegin("name", thrift.STRING, 1); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write field begin error 1:name: ", p), err)
+	if err := oprot.WriteFieldBegin("request", thrift.STRUCT, 1); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field begin error 1:request: ", p), err)
 	}
-	if err := oprot.WriteString(string(p.Name)); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T.name (1) field write error: ", p), err)
+	if err := p.Request.Write(oprot); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T error writing struct: ", p.Request), err)
 	}
 	if err := oprot.WriteFieldEnd(); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write field end error 1:name: ", p), err)
+		return thrift.PrependError(fmt.Sprintf("%T write field end error 1:request: ", p), err)
 	}
 	return err
 }
@@ -311,20 +319,20 @@ func (p *GreeterSayHelloArgs) String() string {
 // Attributes:
 //  - Success
 type GreeterSayHelloResult struct {
-	Success *string `thrift:"success,0" json:"success,omitempty"`
+	Success *HelloReply `thrift:"success,0" json:"success,omitempty"`
 }
 
 func NewGreeterSayHelloResult() *GreeterSayHelloResult {
 	return &GreeterSayHelloResult{}
 }
 
-var GreeterSayHelloResult_Success_DEFAULT string
+var GreeterSayHelloResult_Success_DEFAULT *HelloReply
 
-func (p *GreeterSayHelloResult) GetSuccess() string {
+func (p *GreeterSayHelloResult) GetSuccess() *HelloReply {
 	if !p.IsSetSuccess() {
 		return GreeterSayHelloResult_Success_DEFAULT
 	}
-	return *p.Success
+	return p.Success
 }
 func (p *GreeterSayHelloResult) IsSetSuccess() bool {
 	return p.Success != nil
@@ -364,10 +372,9 @@ func (p *GreeterSayHelloResult) Read(iprot thrift.TProtocol) error {
 }
 
 func (p *GreeterSayHelloResult) readField0(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadString(); err != nil {
-		return thrift.PrependError("error reading field 0: ", err)
-	} else {
-		p.Success = &v
+	p.Success = &HelloReply{}
+	if err := p.Success.Read(iprot); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T error reading struct: ", p.Success), err)
 	}
 	return nil
 }
@@ -390,11 +397,11 @@ func (p *GreeterSayHelloResult) Write(oprot thrift.TProtocol) error {
 
 func (p *GreeterSayHelloResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
-		if err := oprot.WriteFieldBegin("success", thrift.STRING, 0); err != nil {
+		if err := oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			return thrift.PrependError(fmt.Sprintf("%T write field begin error 0:success: ", p), err)
 		}
-		if err := oprot.WriteString(string(*p.Success)); err != nil {
-			return thrift.PrependError(fmt.Sprintf("%T.success (0) field write error: ", p), err)
+		if err := p.Success.Write(oprot); err != nil {
+			return thrift.PrependError(fmt.Sprintf("%T error writing struct: ", p.Success), err)
 		}
 		if err := oprot.WriteFieldEnd(); err != nil {
 			return thrift.PrependError(fmt.Sprintf("%T write field end error 0:success: ", p), err)

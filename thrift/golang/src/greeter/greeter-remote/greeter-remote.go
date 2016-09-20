@@ -20,7 +20,7 @@ func Usage() {
 	fmt.Fprintln(os.Stderr, "Usage of ", os.Args[0], " [-h host:port] [-u url] [-f[ramed]] function [arg1 [arg2...]]:")
 	flag.PrintDefaults()
 	fmt.Fprintln(os.Stderr, "\nFunctions:")
-	fmt.Fprintln(os.Stderr, "  string sayHello(string name)")
+	fmt.Fprintln(os.Stderr, "  HelloReply sayHello(HelloRequest request)")
 	fmt.Fprintln(os.Stderr)
 	os.Exit(0)
 }
@@ -120,7 +120,22 @@ func main() {
 			fmt.Fprintln(os.Stderr, "SayHello requires 1 args")
 			flag.Usage()
 		}
-		argvalue0 := flag.Arg(1)
+		arg4 := flag.Arg(1)
+		mbTrans5 := thrift.NewTMemoryBufferLen(len(arg4))
+		defer mbTrans5.Close()
+		_, err6 := mbTrans5.WriteString(arg4)
+		if err6 != nil {
+			Usage()
+			return
+		}
+		factory7 := thrift.NewTSimpleJSONProtocolFactory()
+		jsProt8 := factory7.GetProtocol(mbTrans5)
+		argvalue0 := greeter.NewHelloRequest()
+		err9 := argvalue0.Read(jsProt8)
+		if err9 != nil {
+			Usage()
+			return
+		}
 		value0 := argvalue0
 		fmt.Print(client.SayHello(value0))
 		fmt.Print("\n")

@@ -1,7 +1,13 @@
 namespace go greeter
 
+struct HelloRequest {
+  1: string message,
+}
+
+struct HelloReply {
+  1: string message,
+}
+
 service Greeter {
-
-    string sayHello(1:string name);
-
+    HelloReply sayHello(1:HelloRequest request);
 }
