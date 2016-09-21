@@ -1,7 +1,34 @@
 
+## UPDATE. Test with database
+
+Well, this is interesting and kinda expected. I added new test with the server connect and do some query to database. 
+
+First, you need to setup Couchbase (see https://github.com/arifsetiawan/gosimple#couchbase) and do
+```
+go get github.com/couchbase/gocb
+``` 
+
+Run server
+```
+go run src/serverdb/main.go 
+```
+
+Run client
+```
+./clientrunnerdb.sh
+```
+
+Test result as follows (milliseconds/100 calls) - 10000 would be too long. The first value is using one client to test servers and the second value is using 20 clients to test concurrently.
+
+|  | Golang | 
+| ----- | ----- | 
+| **Thrift**   | 3036/3104  | 
+| **gRPC**     | 2926/3246 | 
+
+
 ### Simple Thrift vs gRPC performance test
 
-use a simple "helloworld" prototype to test thrift and gRPC. All servers and clients are implemented by Golang
+Use a simple "helloworld" prototype to test thrift and gRPC. All servers and clients are implemented by Golang
 
 Test result as follows (milliseconds/10000 calls). The first value is using one client to test servers and the second value is using 20 clients to test concurrently.
 
@@ -91,7 +118,8 @@ service Greeter {
 
 ### Conclusion
 
-gRPC still have worst speed then thrift even I tried to level the field. Although the ratio is not as bad as previous test. About 3 times slower (not 5 times slower as in previous test for one client test)
+Without any database work. gRPC is about 3 times slower.
 
-gRPC CPU usage also higher then thrift (I just glance at %CPU on my Mac, no recorded data)
+With database work, the speed is about the same. 
 
+Observation: Raw speed is small factor that make up whole API speed. Database connection seems has bigger weight then raw speed in determining overall speed. Client to server network condition maybe another factor.
