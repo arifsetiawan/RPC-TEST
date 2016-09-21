@@ -1,7 +1,7 @@
 
 ## UPDATE. Test with database
 
-Well, this is interesting and kinda expected. I added new test with the server connect and do some query to database. 
+Well, this is interesting and kinda expected. I added new test with the server to connect and do some query to database. 
 
 First, you need to setup Couchbase (see https://github.com/arifsetiawan/gosimple#couchbase) and do
 ```
